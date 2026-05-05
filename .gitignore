@@ -1,0 +1,13 @@
+# Données intermédiaires — ne pas committer
+X_train.pkl
+X_test.pkl
+y_train.pkl
+y_test.pkl
+
+# Données brutes
+*.csv
+
+# Fichiers Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
