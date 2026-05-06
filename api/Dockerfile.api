@@ -1,0 +1,23 @@
+# ── Image de base ─────────────────────────────────────────────────────────────
+# Python 3.11 slim = légère, compatible avec nos packages
+FROM python:3.11-slim
+
+# ── Métadonnées ────────────────────────────────────────────────────────────────
+LABEL maintainer="Belvin Tsadjio"
+LABEL description="Churn Prediction API"
+LABEL version="1.0.0"
+
+
+WORKDIR /app
+
+# Copie d'abord les requirements pour le cache Docker
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copie tout le contenu du dossier actuel (le dossier 'api/') dans /app
+COPY . .
+
+# Définit le path pour que Python trouve tes modules
+ENV PYTHONPATH=/app
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -16,9 +16,10 @@ COLS_OHE = [
 
 COLS_STANDARD = ["tenure", "MonthlyCharges", "TotalCharges"]
 
+
 ARTIFACTS = {
-    "model":      "model.pkl",
-    "scaler":     "scaler.pkl",
-    "ordinal_enc": "ordinal_encoder.pkl",
-    "feature_names": "feature_names.json",
+    "model": "models/model.pkl",
+    "scaler": "models/scaler.pkl",
+    "ordinal_enc": "models/ordinal_encoder.pkl",
+    "feature_names": "models/feature_names.json",
 }
