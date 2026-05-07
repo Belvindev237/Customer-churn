@@ -2,6 +2,7 @@ import json
 import joblib
 import pandas as pd
 import logging
+import shap
 
 from config import (
     SERVICE_COLS,
@@ -16,16 +17,18 @@ model = None
 scaler = None
 ordinal_enc = None
 feature_names = None
+explainer=None
 
 logger = logging.getLogger(__name__)
 
 def load_artifacts():
-    global model, scaler, ordinal_enc, feature_names
+    global model, scaler, ordinal_enc, feature_names,explainer
     model = joblib.load(ARTIFACTS["model"])
     scaler = joblib.load(ARTIFACTS["scaler"])
     ordinal_enc = joblib.load(ARTIFACTS["ordinal_enc"])
     with open(ARTIFACTS["feature_names"]) as f:
         feature_names = json.load(f)
+    explainer=shap.TreeExplainer(model)
 
 def ensure_features(df: pd.DataFrame, feature_names: list) -> pd.DataFrame:
     """Force la présence et l'ordre des 31 colonnes attendues."""
@@ -91,3 +94,10 @@ def predict_churn(df: pd.DataFrame) -> dict:
         "label": "Churner ⚠️" if churn else "Fidèle ✅",
         "seuil_utilise": SEUIL,
     }
+
+def explain_prediction(df:pd.DataFrame):
+    global explainer
+    if explainer is None:
+        raise ValueError("explainer isn't initialized")
+    shap_values=explainer(df)
+    return shap_values

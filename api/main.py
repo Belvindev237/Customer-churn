@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException
 from config import SEUIL, ARTIFACTS
 from contextlib import asynccontextmanager
-from preprocessing import load_artifacts, preprocess, predict_churn
+from preprocessing import load_artifacts, preprocess, predict_churn,explain_prediction
 from schemas import ClientData
 
 
@@ -50,3 +50,14 @@ def predict(client: ClientData):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/explain")
+def explain(client:ClientData):
+    df=preprocess(client)
+    shap_vals=explain_prediction(df)
+    return {
+        "feature_names":df.columns.tolist(),
+        "shap_values": shap_vals.values[0].tolist(),
+        "base_value": float(shap_vals.base_values[0].item())
+
+    }
