@@ -1,15 +1,17 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException
-from config import SEUIL, ARTIFACTS
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from preprocessing import load_artifacts, preprocess, predict_churn,explain_prediction
-from schemas import ClientData
+from config import SEUIL
+from preprocessing import load_artifacts
+from db import init_db
+from routers import predict, explain, batch, stats
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_artifacts()
+    init_db()
     yield
 
 
@@ -19,6 +21,11 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.include_router(predict.router)
+app.include_router(explain.router)
+app.include_router(batch.router)
+app.include_router(stats.router)
 
 
 @app.get("/")
@@ -38,26 +45,4 @@ def health():
         "model_type": type(model).__name__,
         "nb_features": len(feature_names),
         "seuil": SEUIL,
-    }
-
-
-@app.post("/predict")
-def predict(client: ClientData):
-    try:
-        df = preprocess(client)
-        result = predict_churn(df)
-        return result
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-@app.post("/explain")
-def explain(client:ClientData):
-    df=preprocess(client)
-    shap_vals=explain_prediction(df)
-    return {
-        "feature_names":df.columns.tolist(),
-        "shap_values": shap_vals.values[0].tolist(),
-        "base_value": float(shap_vals.base_values[0].item())
-
     }

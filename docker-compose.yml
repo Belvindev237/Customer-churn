@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - "8000:8000"
+    volumes:
+      - ./api:/app  # Bind mount pour hot-reload code API
 
   ui:
     build:
@@ -13,7 +15,8 @@ services:
     ports:
       - "8501:8501"
     environment:
-      # L'UI va chercher l'API sur le nom de service "api" dans le réseau Docker
-      API_URL: "http://api:8000/predict"
+      API_URL: "http://api:8000"
     depends_on:
       - api
+    volumes:
+      - ./ui:/app  # Bind mount pour hot-reload Streamlit
